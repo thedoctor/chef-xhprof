@@ -22,13 +22,19 @@ when "debian","ubuntu"
     action :nothing
   end
 
+  directory "#{node['php']['ext_conf_dir']}" do
+    owner 'root'
+    group 'root'
+    recursive true
+  end
+
   %w{python-software-properties pkg-config}.each do |pkg|
     package pkg
   end
 
-  execute "add-apt-repository ppa:brianmercer/php5-xhprof" do
-    not_if { File.exists?("/etc/apt/sources.list.d/xhprof.list") }
-    notifies :run, resources("execute[apt-get update]"), :immediately
+  php_pear "xhprof" do
+    preferred_state "beta"
+    action :install
   end
 
   package "php5-xhprof"
@@ -40,4 +46,3 @@ when "mac_os_x"
     source "xhprof.ini.erb"
   end
 end
-
